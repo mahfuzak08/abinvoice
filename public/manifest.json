@@ -1,0 +1,17 @@
+{
+    "name": "M/S POLLI AGRO",
+    "short_name": "PA",
+    "start_url": "/",
+    "background_color": "#6777ef",
+    "description": "M/S Polli Agro Shop Management System",
+    "display": "fullscreen",
+    "theme_color": "#6777ef",
+    "icons": [
+        {
+            "src": "pollifeed-logo.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
