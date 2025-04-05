@@ -114,7 +114,7 @@
                                         </div>
                                         <div class="col-12 col-md-3">
                                           <label>{{ __('admin.quantity') }}</label>
-                                          <input type="text" class="form-control quantity" name="qty" placeholder="{{ __('admin.quantity') }}">
+                                          <input type="text" class="form-control quantity" name="qty" placeholder="{{ __('Unlimited or any number') }}">
                                         </div>
                                         <div class="col-12 col-md-3">
                                           <label>{{__('admin.purchase')}} {{ __('admin.price') }}</label>

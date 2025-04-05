@@ -4,7 +4,7 @@
 <title>{{config('app.name')}}</title>
 <!-- PWA  -->
 <meta name="theme-color" content="#6777ef"/>
-<link rel="apple-touch-icon" href="{{ asset('admin/assets/images/pollifeed-logo.gif') }}">
+<link rel="apple-touch-icon" href="{{ asset('ab_logo.png') }}">
 <link rel="manifest" href="{{ asset('/manifest.json') }}">
 <!-- plugins:css -->
 {{-- <link rel="stylesheet" href="admin/assets/vendors/mdi/css/materialdesignicons.min.css"> --}}

@@ -15,6 +15,10 @@ use App\Models\Expense;
 use App\Models\Expense_detail;
 // use App\Models\Vendor;
 
+use LaravelDaily\Invoices\Invoice;
+use LaravelDaily\Invoices\Classes\Party;
+use LaravelDaily\Invoices\Classes\InvoiceItem;
+
 class ReportController extends Controller
 {
     public function sales(Request $request){
@@ -310,5 +314,96 @@ class ReportController extends Controller
 
         }
         return view('admin.report.profitnloss', compact('total', 'start_date', 'end_date', 'quantity'));
+    }
+    
+    public function print_pdf(){
+        $order_id = request()->input('id');
+        $order_type = request()->input('type');
+        if($order_type == 'sales'){
+            $invoice = Sales::join("customers", "sales.customer_id", "=", "customers.id")
+            ->select('sales.*', 'customers.name as customer_name', 'customers.mobile', 'customers.address')
+            ->where("sales.id", $order_id)
+            ->get();
+            $account = Bankacc::all();
+            
+            // return view('admin.sales.invoice', compact('invoice', 'account'));
+        }
+        // dd($invoice);
+        $client = new Party([
+            'name'          => config('app.inv_name'),
+            'phone'         => config('app.inv_mobile'),
+            'custom_fields' => [
+                'address'   => config('app.inv_address'),
+                'email'     => config('app.inv_email'),
+                'website'   => config('app.inv_web'),
+            ],
+        ]);
+        
+        $customer = new Party([
+            'name'          => $invoice[0]->customer_name,
+            'address'       => $invoice[0]->address,
+            'phone'          => $invoice[0]->mobile,
+            'custom_fields' => [
+                'order number' => $invoice[0]->order_id,
+            ],
+        ]);
+        $products = json_decode($invoice[0]->products);
+        foreach($products as $item){
+            $items[] = InvoiceItem::make($item->product_name)
+                                    ->pricePerUnit($item->price)
+                                    ->quantity($item->quantity)
+                                    ->discount(0)
+                                    ->units('Pc');
+        }
+        // $items = [
+        //     InvoiceItem::make('Service 1')
+        //         ->description('Your product or service description')
+        //         ->pricePerUnit(47.79)
+        //         ->quantity(2)
+        //         ->discount(10),
+        //     InvoiceItem::make('Service 4')->pricePerUnit(87.51)->quantity(7)->discount(4)->units('kg'),
+        //     InvoiceItem::make('Service 5')->pricePerUnit(71.09)->quantity(7)->discountByPercent(9),
+        //     InvoiceItem::make('Service 9')->pricePerUnit(33.24)->quantity(6)->units('m2')
+        // ];
+        
+        $notes = [
+            'Payment Instructions:',
+            'bKash/ Nogod: <b>01719-455709</b>',
+            'Bank: Dutch-Bangla Bank Limited (Gulshan Branch)',
+            'Account Name: <strong>MD MAHFUZUR RAHMAN</strong>',
+            'A/C: <strong>116.101.137870</strong>',
+        ];
+        $notes = implode("<br>", $notes);
+        
+        $invoice = Invoice::make('invoice')
+            ->series('AB')
+            // ability to include translated invoice status
+            // in case it was paid
+            // ->status(__('invoices::invoice.paid'))
+            ->sequence($invoice[0]->order_id)
+            ->serialNumberFormat('{SERIES}{SEQUENCE}')
+            ->seller($client)
+            ->buyer($customer)
+            ->date(now()->subWeeks(3))
+            ->dateFormat('d-m-Y')
+            // ->payUntilDays(14)
+            ->currencySymbol('Tk')
+            ->currencyCode('BDT')
+            ->currencyFormat('{SYMBOL}{VALUE}')
+            ->currencyThousandsSeparator(',')
+            ->currencyDecimalPoint('.')
+            ->filename('AB' . $invoice[0]->order_id)
+            ->addItems($items)
+            ->notes($notes)
+            ->logo(public_path('ab_logo.png'))
+            ->template('abinv')
+            // You can additionally save generated invoice to configured disk
+            ->save('public');
+        
+        $link = $invoice->url();
+        // Then send email to party with link
+        
+        // And return invoice itself to browser or have a different view
+        return $invoice->stream();
     }
 }

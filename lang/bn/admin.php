@@ -9,13 +9,14 @@ return [
     |
     */
 
-    'company' => 'মেসার্স পল্লী এগ্রো',
+    'company' => 'ABSoftBD',
     'comingsoon'=>'খুব শীঘ্রই আসছে',
     'dashboard' => 'হোম',
     'logout' => 'প্রস্থান',
     'purchase' => 'ক্রয়',
     'vendor' => 'বিক্রেতা',
     'sales' => 'বিক্রয়',
+    'contact.person' => 'যোগাযোগ ব্যক্তি',
     'customer' => 'ক্রেতা',
     'employee' => 'কর্মচারী',
     'expense' => 'ব্যয়',
@@ -172,4 +173,9 @@ return [
     'brand' => 'প্রস্তুতকারক',
     'tag' => 'চিহ্ন',
     'Balance_Before'=>'পূর্বের যোগফল',
+    'ticket'=>'tickets',
+    'priority'=>'priority',
+    'description'=>'description',
+    'open'=>'Open',
+    'attchment'=>'attchment',
 ];

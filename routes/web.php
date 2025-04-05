@@ -1,7 +1,4 @@
 <?php
-
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SalesController;
@@ -14,6 +11,7 @@ use App\Http\Controllers\BankaccController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,6 +35,8 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+    Route::get('/tickets', [HomeController::class, 'tickets'])->name('tickets');
+    Route::post('/ticket', [HomeController::class, 'ticket_save'])->name('save-ticket');
     
     Route::get('/category', [InventoryController::class, 'category'])->name('category');
     Route::get('/add_category', [InventoryController::class, 'add_category'])->name('add-category');
@@ -124,6 +124,7 @@ Route::middleware([
     Route::get('/reportPurchase', [ReportController::class, 'purchase'])->name('purchase-report');
     Route::get('/reportExpense', [ReportController::class, 'expense'])->name('expense-report');
     Route::get('/reportProfitAndLoss', [ReportController::class, 'profit_and_loss'])->name('profit-and-loss');
+    Route::get('/printPdf', [ReportController::class, 'print_pdf'])->name('print-pdf');
     
 
     Route::get('/language', [SettingsController::class, 'language'])->name('language');

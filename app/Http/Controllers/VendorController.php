@@ -14,27 +14,28 @@ use App\Models\Purchase;
 class VendorController extends Controller
 {
     public function index(){
-        if(! empty(request()->input('search'))){
-            $str = request()->input('search');
-            $datas = Vendor::select('vendors.*')
-                            ->addSelect(DB::raw('(COALESCE((SELECT SUM(total_due) FROM purchases WHERE vendor_id = vendors.id AND status = 1), 0) + COALESCE((SELECT SUM(amount) FROM account_tranxes WHERE ref_id = vendors.id AND ref_type = "vendor" AND ref_tranx_id = "0"), 0)) as due'))
-                            ->where(function ($query) use ($str){
-                                $query->where('name', 'like', '%'.$str.'%')
-                                ->orWhere('mobile', 'like', '%'.$str.'%')
-                                ->orWhere('email', 'like', '%'.$str.'%')
-                                ->orWhere('address', 'like', '%'.$str.'%');
-                            })
-                            ->where('is_delete', 0)
-                            ->latest()->paginate(10)->withQueryString();
-        }else{
-            $datas = Vendor::select('vendors.*')
-                            ->addSelect(DB::raw('(COALESCE((SELECT SUM(total_due) FROM purchases WHERE vendor_id = vendors.id AND status = 1), 0) + COALESCE((SELECT SUM(amount) FROM account_tranxes WHERE ref_id = vendors.id AND ref_type = "vendor" AND ref_tranx_id = "0"), 0)) as due'))
-                            ->latest()
-                            ->where('is_delete', 0)
-                            ->paginate(10)
-                            ->withQueryString();
-        }
-        return view('admin.vendor.manage', compact('datas'))->with('i', (request()->input('page', 1) - 1) * 10);
+        print_r("hi");
+        // if(! empty(request()->input('search'))){
+        //     $str = request()->input('search');
+        //     $datas = Vendor::select('vendors.*')
+        //                     ->addSelect(DB::raw('(COALESCE((SELECT SUM(total_due) FROM purchases WHERE vendor_id = vendors.id AND status = 1), 0) + COALESCE((SELECT SUM(amount) FROM account_tranxes WHERE ref_id = vendors.id AND ref_type = "vendor" AND ref_tranx_id = "0"), 0)) as due'))
+        //                     ->where(function ($query) use ($str){
+        //                         $query->where('name', 'like', '%'.$str.'%')
+        //                         ->orWhere('mobile', 'like', '%'.$str.'%')
+        //                         ->orWhere('email', 'like', '%'.$str.'%')
+        //                         ->orWhere('address', 'like', '%'.$str.'%');
+        //                     })
+        //                     ->where('is_delete', 0)
+        //                     ->latest()->paginate(10)->withQueryString();
+        // }else{
+        //     $datas = Vendor::select('vendors.*')
+        //                     ->addSelect(DB::raw('(COALESCE((SELECT SUM(total_due) FROM purchases WHERE vendor_id = vendors.id AND status = 1), 0) + COALESCE((SELECT SUM(amount) FROM account_tranxes WHERE ref_id = vendors.id AND ref_type = "vendor" AND ref_tranx_id = "0"), 0)) as due'))
+        //                     ->latest()
+        //                     ->where('is_delete', 0)
+        //                     ->paginate(10)
+        //                     ->withQueryString();
+        // }
+        // return view('admin.vendor.manage', compact('datas'))->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     public function open_vendor_form(){
@@ -44,7 +45,7 @@ class VendorController extends Controller
     public function set_vendor(Request $request){
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'mobile' => ['required', 'digits:13']
+            'mobile' => ['required', 'digits:11']
         ];
         $validator = Validator::make($request->all(), $rules);
 
@@ -101,7 +102,7 @@ class VendorController extends Controller
     public function update_vendor(Request $request, $id){
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'mobile' => ['required', 'digits:13']
+            'mobile' => ['required', 'digits:11']
         ];
         $validator = Validator::make($request->all(), $rules);
 

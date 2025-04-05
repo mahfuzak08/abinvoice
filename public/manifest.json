@@ -1,14 +1,14 @@
 {
-    "name": "M/S POLLI AGRO",
-    "short_name": "PA",
+    "name": "ABSoftBD",
+    "short_name": "AB",
     "start_url": "/",
     "background_color": "#6777ef",
-    "description": "M/S Polli Agro Shop Management System",
+    "description": "ABSoftBD Invoice",
     "display": "fullscreen",
     "theme_color": "#6777ef",
     "icons": [
         {
-            "src": "pollifeed-logo.png",
+            "src": "ab_logo 144x144.png",
             "sizes": "144x144",
             "type": "image/png",
             "purpose": "any maskable"

@@ -263,7 +263,7 @@ class SalesController extends Controller
                         $pidvid = explode("@", $pid[$i]);
                         $ptdata[] = array(
                             "product_id"=>$pidvid[0],
-                            "variant_id"=>$pidvid[1],
+                            "variant_id"=>$pidvid[1] == "0" ? null : $pidvid[1],
                             "order_id"=>$order_id, 
                             "order_type"=>'sales', 
                             "date"=>$request->input('date'),

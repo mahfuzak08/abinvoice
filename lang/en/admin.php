@@ -9,13 +9,14 @@ return [
     |
     */
 
-    'company' => 'M/S Polli Agro',
+    'company' => 'ABSoftBD',
     'comingsoon'=>'Coming Soon',
     'dashboard' => 'Dashboard',
     'logout' => 'Log Out',
     'purchase' => 'Purchase',
     'vendor' => 'Vendor',
     'sales' => 'Sales',
+    'contact.person' => 'Contact Person',
     'customer' => 'Customer',
     'employee' => 'Employee',
     'expense' => 'Expense',
@@ -172,4 +173,9 @@ return [
     'brand' => 'Brand',
     'tag' => 'Tag',
     'Balance_Before'=>'Balance Before',
+    'ticket'=>'Ticket',
+    'priority'=>'Priority',
+    'description'=>'Description',
+    'open'=>'Open',
+    'attchment'=>'Attchment',
 ];

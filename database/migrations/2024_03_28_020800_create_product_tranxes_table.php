@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if(! Schema::hasTable('product_tranxes')) {
+        if (! Schema::hasTable('product_tranxes')) {
             Schema::create('product_tranxes', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('product_id');
-                $table->unsignedBigInteger('variant_id');
+                $table->unsignedBigInteger('variant_id')->nullable(); // Nullable for products without variants
                 $table->string('from_inventory')->nullable();
                 $table->unsignedBigInteger('order_id');
                 $table->string('order_type');
@@ -27,10 +27,12 @@ return new class extends Migration
                 $table->float('actual_sell_price', 14, 2)->default(0);
                 $table->float('actual_buy_price', 14, 2)->default(0);
                 $table->timestamps();
+        
+                // Foreign key constraints
                 $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
                 $table->foreign('variant_id')->references('id')->on('variants')->onDelete('cascade');
             });
-        }
+        }        
     }
 
     /**

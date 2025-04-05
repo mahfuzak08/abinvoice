@@ -50,7 +50,7 @@ class PurchaseController extends Controller
         $rules = [
             'vendor_new' => ['required', 'string', 'max:255'],
             'date' => ['required', 'date'],
-            'total' => ['required', 'integer']
+            'total' => ['required', 'numeric']
         ];
         $validator = Validator::make($request->all(), $rules);
 
@@ -62,6 +62,7 @@ class PurchaseController extends Controller
         }
         $vendor_id = $request->input('vendor_id');
         $due = 0;
+        // dd($request->all());
         if($request->input('vendor_id') == null){
             // dd($request->input('vendor_id') == null);
             // exit();
@@ -266,7 +267,7 @@ class PurchaseController extends Controller
                         $pidvid = explode("@", $pid[$i]);
                         $ptdata[] = array(
                             "product_id"=>$pidvid[0],
-                            "variant_id"=>$pidvid[1],
+                            "variant_id"=>$pidvid[1] == "0" ? null : $pidvid[1],
                             "order_id"=>$order_id, 
                             "order_type"=>'purchase', 
                             "date"=>$request->input('date'),

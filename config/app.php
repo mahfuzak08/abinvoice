@@ -29,9 +29,11 @@ return [
     |
     */
 
-    'inv_name' => env('INV_NAME', 'Laravel'),
-    'inv_address' => env('INV_ADDRESS', 'Laravel'),
-    'inv_mobile' => env('INV_MOBILE', '017'),
+    'inv_name' => env('INV_NAME', 'ABSoftBD'),
+    'inv_address' => env('INV_ADDRESS', 'Madani Avenue, Dhaka'),
+    'inv_mobile' => env('INV_MOBILE', '+8801719-455709'),
+    'inv_email' => env('INV_EMAIL', 'info@absoft-bd.com'),
+    'inv_web' => env('INV_WEB', 'https://www.absoft-bd.com'),
 
     /*
     |--------------------------------------------------------------------------

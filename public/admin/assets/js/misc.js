@@ -46,6 +46,10 @@ var lightColor = getComputedStyle(document.body).getPropertyValue('--light');
     }
 
     var current = location.pathname.split("/").slice(-1)[0].replace(/^\/|\/$/g, '');
+    if(!isNaN(current)){
+      current = location.pathname.split("/").slice(-2)[0].replace(/^\/|\/$/g, '');
+    }
+    // console.log(52, current);
     $('.nav li a', sidebar).each(function() {
       var $this = $(this);
       addActiveClass($this);

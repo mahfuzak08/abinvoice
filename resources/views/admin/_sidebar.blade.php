@@ -20,6 +20,14 @@
         <i class="mdi mdi-home menu-icon"></i>
       </a>
     </li>
+    @if(hasModuleAccess("Tickets"))
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('tickets') }}">
+        <span class="menu-title">{{ __('admin.ticket') }}</span>
+        <i class="mdi mdi-cart-off menu-icon"></i>
+      </a>
+    </li>
+    @endif
     @if(hasModuleAccess("Inventory"))
     <li class="nav-item">
       <a class="nav-link" data-bs-toggle="collapse" href="#ui-inventory" aria-expanded="false" aria-controls="ui-inventory">

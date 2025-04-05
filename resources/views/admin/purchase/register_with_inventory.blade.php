@@ -50,7 +50,7 @@
                                 </datalist>
                               </td>
                               <td width="30%">
-                                <input type="date" required name="date" class="form-control" placeholder="YYYY-MM-DD" value="{{date('d-m-Y')}}">
+                                <input type="date" required name="date" class="form-control" placeholder="YYYY-MM-DD" value="{{ date('Y-m-d') }}">
                               </td>
                             </tr>
                             <tr>
@@ -144,12 +144,12 @@
         <tr id="rowsample" class="item hidden purchase">
           <td class="sl">1</td>
           <td>
-            <p class="product_name"></p>
+            <p class="product_name_txt"></p>
+            <p class="product_details_txt"></p>
             <input type="hidden" name="product_name[]" class="product_name">
           </td>
           <td>
-            <p class="product_details"></p>
-            <input type="hidden" name="product_details[]" class="product_details">
+            <input type="text" name="product_details[]" class="product_details">
           </td>
           <td>
             <input type="text" name="quantity[]" onblur="adjust_price()" class="qmp quantity form-control" placeholder="{{__('admin.quantity')}}">

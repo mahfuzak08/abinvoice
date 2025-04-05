@@ -26,14 +26,16 @@ class InventoryController extends Controller
         $products = Product::select('products.*', 'categories.name as category_name', 'variants.id as variant_id', 'variants.buy_price as buy_price', 'variants.sell_price as price', 'variants.size', 'variants.color')
             ->addSelect(DB::raw('COALESCE((SELECT SUM(qty) FROM product_tranxes WHERE product_id = products.id AND variant_id = variants.id), 0) as qty'))
             ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->join('variants', 'products.id', '=', 'variants.product_id')
-            ->where('products.name', 'LIKE', "%$query%")
-            ->orWhere('products.barcode', 'LIKE', "%$query%")
-            ->orWhere('products.brand_name', 'LIKE', "%$query%")
-            ->orWhere('products.description', 'LIKE', "%$query%")
-            ->orWhere('products.tags', 'LIKE', "%$query%")
-            ->orWhere('categories.name', 'LIKE', "%$query%")
-            ->orWhere('variants.size', 'LIKE', "%$query%")
+            ->leftJoin('variants', 'products.id', '=', 'variants.product_id')
+            ->where(function ($queryBuilder) use ($query) {
+                $queryBuilder->where('products.name', 'LIKE', "%$query%")
+                    ->orWhere('products.barcode', 'LIKE', "%$query%")
+                    ->orWhere('products.brand_name', 'LIKE', "%$query%")
+                    ->orWhere('products.description', 'LIKE', "%$query%")
+                    ->orWhere('products.tags', 'LIKE', "%$query%")
+                    ->orWhere('categories.name', 'LIKE', "%$query%")
+                    ->orWhere('variants.size', 'LIKE', "%$query%");
+            })
             ->get();
 
         return response()->json($products);
@@ -81,18 +83,35 @@ class InventoryController extends Controller
     public function products(){
         $query = request()->input('search');
 
-        $products = Product::select('products.*', 'categories.name as category_name', 'variants.id as variant_id', 'variants.buy_price as buy_price', 'variants.sell_price as price', 'variants.size', 'variants.color')
-            ->addSelect(DB::raw('COALESCE((SELECT SUM(qty) FROM product_tranxes WHERE product_id = products.id AND variant_id = variants.id), 0) as qty'))
-            ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->join('variants', 'products.id', '=', 'variants.product_id')
-            ->where('products.name', 'LIKE', "%$query%")
-            ->orWhere('products.barcode', 'LIKE', "%$query%")
-            ->orWhere('products.brand_name', 'LIKE', "%$query%")
-            ->orWhere('products.description', 'LIKE', "%$query%")
-            ->orWhere('products.tags', 'LIKE', "%$query%")
-            ->orWhere('categories.name', 'LIKE', "%$query%")
-            ->orWhere('variants.size', 'LIKE', "%$query%")
-            ->latest()->paginate(20)->withQueryString();
+        $products = Product::select(
+            'products.*',
+            'categories.name as category_name',
+            'variants.id as variant_id',
+            'variants.buy_price as buy_price',
+            'variants.sell_price as price',
+            'variants.size',
+            'variants.color'
+        )
+        ->addSelect(DB::raw('COALESCE((
+            SELECT SUM(qty) 
+            FROM product_tranxes 
+            WHERE product_id = products.id 
+            AND (variant_id = variants.id OR (variant_id IS NULL AND variants.id IS NULL))
+        ), 0) as qty'))
+        ->join('categories', 'products.category_id', '=', 'categories.id')
+        ->leftJoin('variants', 'products.id', '=', 'variants.product_id') // Keep LEFT JOIN for variants
+        ->where(function ($queryBuilder) use ($query) {
+            $queryBuilder->where('products.name', 'LIKE', "%$query%")
+                ->orWhere('products.barcode', 'LIKE', "%$query%")
+                ->orWhere('products.brand_name', 'LIKE', "%$query%")
+                ->orWhere('products.description', 'LIKE', "%$query%")
+                ->orWhere('products.tags', 'LIKE', "%$query%")
+                ->orWhere('categories.name', 'LIKE', "%$query%")
+                ->orWhere('variants.size', 'LIKE', "%$query%");
+        })
+        ->latest()
+        ->paginate(20)
+        ->withQueryString();
             
         return view('admin.inventory.product.manage', compact('products'));
     }
@@ -160,7 +179,6 @@ class InventoryController extends Controller
         }
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['string'],
             'category_id' => ['required', 'exists:categories,id'],
             'qtys.*' => ['required_without_all:array'],
         ];
@@ -192,64 +210,107 @@ class InventoryController extends Controller
                 $data->fill($ui)->save();
             }
             $pt = array();
-            foreach($input['qtys'] as $k=>$v){
-                $vi = array(
-                    'product_id' => $product_id,
-                    'color' => @$input['colors'][$k],
-                    'size' => @$input['sizes'][$k],
-                    'sell_price' => b2en(@$input['saleprices'][$k]),
-                    'buy_price' => b2en(@$input['buyprices'][$k]),
-                );
-                if(!empty($request->input('variant_id'))){
-                    $vdata = Variant::findOrFail($request->input('variant_id'));
-                }else{
-                    $vdata = new Variant();
+            if(count($input['qtys']) > 0 && $input['qtys'][0] !== 'Unlimited'){
+                foreach($input['qtys'] as $k=>$v){
+                    $vi = array(
+                        'product_id' => $product_id,
+                        'color' => @$input['colors'][$k],
+                        'size' => @$input['sizes'][$k],
+                        'sell_price' => b2en(@$input['saleprices'][$k]),
+                        'buy_price' => b2en(@$input['buyprices'][$k]),
+                    );
+                    if(!empty($request->input('variant_id'))){
+                        $vdata = Variant::findOrFail($request->input('variant_id'));
+                    }else{
+                        $vdata = new Variant();
+                    }
+                    $vdata->fill($vi)->save();
+                    $pt[] = array(b2en($v), $vdata->id, b2en(@$input['buyprices'][$k]));
                 }
-                $vdata->fill($vi)->save();
-                $pt[] = array(b2en($v), $vdata->id, b2en(@$input['buyprices'][$k]));
+                
+                $items = array();
+                $total = 0;
+                if(!empty($input['old_order_id'])){
+                    $order_id = $input['old_order_id'];
+                }else{
+                    $moid = Purchase::max("order_id");
+                    $order_id = $moid > 0 ? $moid+1 : 786;
+                }
+                
+                foreach($pt as $v){
+                    $pti = array(
+                        'product_id' => $product_id,
+                        'variant_id' => $v[1],
+                        'from_inventory' => 'yes',
+                        'order_id' => $order_id,
+                        'order_type' => 'purchase',
+                        'date' => $today,
+                        'inout' => 'in',
+                        'qty' => $v[0],
+                        'batch_no' => $input['batchno'],
+                        'expiry_date' => $input['expirydate'],
+                        'actual_buy_price' => $v[2],
+                    );
+                    if(!empty($request->input('product_tranx_id'))){
+                        $pdata = Product_tranx::findOrFail($request->input('product_tranx_id'));
+                    }else{
+                        $pdata = new Product_tranx();
+                    }
+                    $pdata->fill($pti)->save();
+    
+                    $items[] = [
+                        "pid"=>$product_id,
+                        "product_name"=>$input['name'], 
+                        "product_details"=>$input['description'], 
+                        "quantity"=>(float) $v[0],
+                        "price"=>(float) $v[2],
+                        "total"=>(float) $v[0] * (float) $v[2] 
+                    ];
+                    $total += (float) $v[0] * (float) $v[2];
+                }
+
+                ////////////////////////////////////////////////////////////
+                $due_acc_id = Bankacc::where('type', 'Due')->pluck('id');
+                $payments[] = [
+                    "pid"=>$due_acc_id[0],
+                    "receive_amount"=>(float) $total
+                ];
+                $due = (float) $total;
+
+                $vendor_id = $input['vendor_id'];
+                if($vendor_id == 0){
+                    $untitle_vendor_id = Vendor::where('name', 'Untitled Vendor')->pluck('id');
+                    if(count($untitle_vendor_id) == 0){
+                        $vinfo = new Vendor();
+                        $input = ["name"=>'Untitled Vendor', "address"=>'System Genarated', "mobile"=>'8800000000000'];
+                        $vinfo->fill($input)->save();
+                        $vendor_id = $vinfo->id;
+                    }
+                    else $vendor_id = $untitle_vendor_id[0];
+                }
+
+                $input_order = [
+                    "order_id"=> $order_id,
+                    "order_type"=> "purchase",
+                    "user_id"=> Auth::id(),
+                    "vendor_id"=> $vendor_id,
+                    "products"=> json_encode($items),
+                    "date"=> $today,
+                    "discount"=> 0,
+                    "total"=> $total,
+                    "payment"=> json_encode($payments),
+                    "total_due"=> $due,
+                    "note"=> "system_genarated",
+                ];
+
+                if(!empty($request->input('purchase_id'))){
+                    $order = Purchase::findOrFail($request->input('purchase_id'));
+                }else{
+                    $order = New Purchase();
+                }
+                $order->fill($input_order)->save();
             }
             
-            $items = array();
-            $total = 0;
-            if(!empty($input['old_order_id'])){
-                $order_id = $input['old_order_id'];
-            }else{
-                $moid = Purchase::max("order_id");
-                $order_id = $moid > 0 ? $moid+1 : 786;
-            }
-
-            foreach($pt as $v){
-                $pti = array(
-                    'product_id' => $product_id,
-                    'variant_id' => $v[1],
-                    'from_inventory' => 'yes',
-                    'order_id' => $order_id,
-                    'order_type' => 'purchase',
-                    'date' => $today,
-                    'inout' => 'in',
-                    'qty' => $v[0],
-                    'batch_no' => $input['batchno'],
-                    'expiry_date' => $input['expirydate'],
-                    'actual_buy_price' => $v[2],
-                );
-                if(!empty($request->input('product_tranx_id'))){
-                    $pdata = Product_tranx::findOrFail($request->input('product_tranx_id'));
-                }else{
-                    $pdata = new Product_tranx();
-                }
-                $pdata->fill($pti)->save();
-
-                $items[] = [
-                    "pid"=>$product_id,
-                    "product_name"=>$input['name'], 
-                    "product_details"=>$input['description'], 
-                    "quantity"=>(float) $v[0],
-                    "price"=>(float) $v[2],
-                    "total"=>(float) $v[0] * (float) $v[2] 
-                ];
-                $total += (float) $v[0] * (float) $v[2];
-            }
-
             if(!empty($input['brand_name'])){
                 $bn = Brand::where("brand_name", $input['brand_name'])->pluck('id');
                 if(count($bn) == 0){
@@ -269,48 +330,6 @@ class InventoryController extends Controller
                 }
             }
 
-            ////////////////////////////////////////////////////////////
-            $due_acc_id = Bankacc::where('type', 'Due')->pluck('id');
-            $payments[] = [
-                "pid"=>$due_acc_id[0],
-                "receive_amount"=>(float) $total
-            ];
-            $due = (float) $total;
-
-            $vendor_id = $input['vendor_id'];
-            if($vendor_id == 0){
-                $untitle_vendor_id = Vendor::where('name', 'Untitled Vendor')->pluck('id');
-                if(count($untitle_vendor_id) == 0){
-                    $vinfo = new Vendor();
-                    $input = ["name"=>'Untitled Vendor', "address"=>'System Genarated', "mobile"=>'8800000000000'];
-                    $vinfo->fill($input)->save();
-                    $vendor_id = $vinfo->id;
-                }
-                else $vendor_id = $untitle_vendor_id[0];
-            }
-
-            $input_order = [
-                "order_id"=> $order_id,
-                "order_type"=> "purchase",
-                "user_id"=> Auth::id(),
-                "vendor_id"=> $vendor_id,
-                "products"=> json_encode($items),
-                "date"=> $today,
-                "discount"=> 0,
-                "total"=> $total,
-                "payment"=> json_encode($payments),
-                "total_due"=> $due,
-                "note"=> "system_genarated",
-            ];
-
-            if(!empty($request->input('purchase_id'))){
-                $order = Purchase::findOrFail($request->input('purchase_id'));
-            }else{
-                $order = New Purchase();
-            }
-            $order->fill($input_order)->save();
-            
-            
             ////////////////////////////////////////////////////////////////
             flash()->addSuccess('Products Added/ Update Successfully.');
             
@@ -318,7 +337,7 @@ class InventoryController extends Controller
         }catch (\Exception $e) {
             // If any query fails, catch the exception and roll back the transaction
             dd($e);
-            flash()->addError('Product Add or Update Successfully.');
+            flash()->addError('Product Add or Update error.');
             DB::rollback();
         }
         

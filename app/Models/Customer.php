@@ -12,7 +12,7 @@ class Customer extends Model
     use HasFactory;
     use LogsActivity;
 
-    protected $fillable = ['name', 'mobile', 'email','address','url','balance', 'opening_balance', 'is_delete'];
+    protected $fillable = ['name', 'mobile', 'email','address','url','balance', 'opening_balance', 'is_delete', 'contact_id'];
 
     public function getActivitylogOptions(): LogOptions
     {

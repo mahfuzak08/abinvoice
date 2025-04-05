@@ -49,7 +49,7 @@
                                     @endphp
                                     <tr _ngcontent-tmn-c13="" class="text-right">
                                       <td _ngcontent-tmn-c13="" class="text-left">{{++$c}}</td>
-                                      <td _ngcontent-tmn-c13="" class="text-left">{{$item->product_name}}<br>{{@$item->product_details}}</td>
+                                      <td _ngcontent-tmn-c13="" class="text-left">{{$item->product_name}} {{@$item->product_details}}</td>
                                       <td _ngcontent-tmn-c13="">{{$item->quantity}}</td>
                                       <td _ngcontent-tmn-c13="">{{$item->price}}</td>
                                       <td _ngcontent-tmn-c13="">{{$item->total}}</td>
@@ -76,7 +76,7 @@
                           </div>
                           <div _ngcontent-tmn-c13="" class="container-fluid w-100">
                             <a _ngcontent-tmn-c13="" class="btn btn-primary float-right mt-4 ml-2" href="javascript:void(0)"><i _ngcontent-tmn-c13="" class="mdi mdi-printer mr-1"></i>Print</a>
-                            {{-- <a _ngcontent-tmn-c13="" class="btn btn-success float-right mt-4" href="javascript:void(0)"><i _ngcontent-tmn-c13="" class="mdi mdi-send mr-1"></i>Send Invoice</a> --}}
+                            <a href="{{route('print-pdf')}}" _ngcontent-tmn-c13="" class="btn btn-success float-right mt-4" href="javascript:void(0)"><i _ngcontent-tmn-c13="" class="mdi mdi-send mr-1"></i>PDF</a>
                             <a href="{{route('purchase')}}" _ngcontent-tmn-c13="" class="btn btn-secondary float-right mt-4">Back</a>
                           </div>
                       </div>

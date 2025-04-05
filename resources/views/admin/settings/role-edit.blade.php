@@ -162,6 +162,22 @@
                                                 </div>
                                                 <div class="form-check submodule">
                                                     <label class="form-check-label">
+                                                    <input type="checkbox" class="form-check-input" name="module[]" {{in_array('Tickets', $modules) ? 'checked' : ''}} value="Tickets"> {{__('Tickets')}} <i class="input-helper"></i></label>
+                                                </div>
+                                                <div class="form-check submodule">
+                                                    <label class="form-check-label">
+                                                    <input type="checkbox" class="form-check-input" name="module[]" {{in_array('Tickets_Add', $modules) ? 'checked' : ''}} value="Tickets_Add"> {{__('Tickets Add')}} <i class="input-helper"></i></label>
+                                                </div>
+                                                <div class="form-check submodule">
+                                                    <label class="form-check-label">
+                                                    <input type="checkbox" class="form-check-input" name="module[]" {{in_array('Tickets_Edit', $modules) ? 'checked' : ''}} value="Tickets_Edit"> {{__('Tickets Edit')}} <i class="input-helper"></i></label>
+                                                </div>
+                                                <div class="form-check submodule">
+                                                    <label class="form-check-label">
+                                                    <input type="checkbox" class="form-check-input" name="module[]" {{in_array('Tickets_Delete', $modules) ? 'checked' : ''}} value="Tickets_Delete"> {{__('Tickets Delete')}} <i class="input-helper"></i></label>
+                                                </div>
+                                                <div class="form-check submodule">
+                                                    <label class="form-check-label">
                                                     <input type="checkbox" class="form-check-input" name="module[]" {{in_array('User_Settings', $modules) ? 'checked' : ''}} value="User_Settings"> {{__('User Settings')}} <i class="input-helper"></i></label>
                                                 </div>
                                                 <div class="form-check submodule">

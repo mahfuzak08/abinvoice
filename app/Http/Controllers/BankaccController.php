@@ -45,10 +45,10 @@ class BankaccController extends Controller
         
         // echo "<hr>";
         $input = [ "name"=>$request->input('name'), "type"=>$request->input('type'), "currency"=>$request->input('currency')];
-        if(! empty($request->input('bank_name'))) array_push($input, $request->input('bank_name'));
-        if(! empty($request->input('bank_address'))) array_push($input, $request->input('bank_address'));
-        if(! empty($request->input('acc_no'))) array_push($input, $request->input('acc_no'));
-        // print_r($input);
+        if(! empty($request->input('bank_name'))) $input["bank_name"] = $request->input('bank_name');
+        if(! empty($request->input('bank_address'))) $input["bank_address"] = $request->input('bank_address');
+        if(! empty($request->input('acc_no'))) $input["acc_no"] = $request->input('acc_no');
+        // dd($input);
         $data->fill($input)->save();
         if(!empty($request->input('opening_balance')) && $request->input('opening_balance')>0){
             $accid = $data->id;
@@ -91,9 +91,9 @@ class BankaccController extends Controller
         
         // echo "<hr>";
         $input = [ "name"=>$request->input('name'), "type"=>$request->input('type'), "currency"=>$request->input('currency')];
-        if(! empty($request->input('bank_name'))) array_push($input, $request->input('bank_name'));
-        if(! empty($request->input('bank_address'))) array_push($input, $request->input('bank_address'));
-        if(! empty($request->input('acc_no'))) array_push($input, $request->input('acc_no'));
+        if(! empty($request->input('bank_name'))) $input["bank_name"] = $request->input('bank_name');
+        if(! empty($request->input('bank_address'))) $input["bank_address"] = $request->input('bank_address');
+        if(! empty($request->input('acc_no'))) $input["acc_no"] = $request->input('acc_no');
         // print_r($input);
         $data->update($input);
         flash()->addSuccess('Data Updated Successfully.');

@@ -25,7 +25,7 @@
                             </div>
                             <div _ngcontent-tmn-c13="" class="col-lg-3 pr-0">
                               <p _ngcontent-tmn-c13="" class="mt-5 mb-2 text-right">
-                                <img src="{{ asset('pollifeed-logo.png') }}" style="position: relative; right: -90px;" alt="{{config('app.name')}} logo" />
+                                <img src="{{ asset('ab_logo.png') }}" style="position: relative; right: -90px;" alt="{{config('app.name')}} logo" />
                                 <br>
                                 <b _ngcontent-tmn-c13="">#INV-{{$invoice[0]->order_id}}</b></p>
                               <p _ngcontent-tmn-c13="" class="text-right">Date : {{date('d-m-Y', strtotime($invoice[0]->date))}}</p>
@@ -38,9 +38,11 @@
                                     <tr _ngcontent-tmn-c13="" class="bg-dark text-white">
                                         <th _ngcontent-tmn-c13="">#</th>
                                         <th _ngcontent-tmn-c13="">Description</th>
-                                        <th _ngcontent-tmn-c13="" class="text-right">Quantity</th>
-                                        <th _ngcontent-tmn-c13="" class="text-right">Unit cost</th>
-                                        <th _ngcontent-tmn-c13="" class="text-right">Total</th>
+                                        <th _ngcontent-tmn-c13="" class="text-right">Units</th>
+                                        <th _ngcontent-tmn-c13="" class="text-right">Qty</th>
+                                        <th _ngcontent-tmn-c13="" class="text-right">Price</th>
+                                        <th _ngcontent-tmn-c13="" class="text-right">Discount</th>
+                                        <th _ngcontent-tmn-c13="" class="text-right">Sub Total</th>
                                       </tr>
                                   </thead>
                                   <tbody _ngcontent-tmn-c13="">
@@ -55,9 +57,11 @@
                                     @endphp
                                     <tr _ngcontent-tmn-c13="" class="text-right">
                                       <td _ngcontent-tmn-c13="" class="text-left">{{++$c}}</td>
-                                      <td _ngcontent-tmn-c13="" class="text-left">{{$item->product_name}}<br>{{@$item->product_details}}</td>
+                                      <td _ngcontent-tmn-c13="" class="text-left">{{$item->product_name}} {{@$item->product_details}}</td>
+                                      <td _ngcontent-tmn-c13="">Pc</td>
                                       <td _ngcontent-tmn-c13="">{{$item->quantity}}</td>
                                       <td _ngcontent-tmn-c13="">{{$item->price}}</td>
+                                      <td _ngcontent-tmn-c13="">0</td>
                                       <td _ngcontent-tmn-c13="">{{$item->total}}</td>
                                     </tr>
                                     @endforeach
@@ -81,9 +85,8 @@
                             <hr _ngcontent-tmn-c13="">
                           </div>
                           <div _ngcontent-tmn-c13="" class="container-fluid w-100">
-                            <a _ngcontent-tmn-c13="" class="btn btn-primary float-right mt-4 ml-2" href="javascript:void(0)"><i _ngcontent-tmn-c13="" class="mdi mdi-printer mr-1"></i>Print</a>
-                            {{-- <a _ngcontent-tmn-c13="" class="btn btn-success float-right mt-4" href="javascript:void(0)"><i _ngcontent-tmn-c13="" class="mdi mdi-send mr-1"></i>Send Invoice</a> --}}
-                            <a _ngcontent-tmn-c13="" class="btn btn-secondary float-right mt-4" onclick="history.back()">Back</a>
+                            <a _ngcontent-tmn-c13="" class="btn btn-success float-right mt-4 ml-2" href="{{ URL::route('print-pdf', ['id' => $invoice[0]->id, 'type' => 'sales']) }}" target="_blank"><i _ngcontent-tmn-c13="" class="mdi mdi-send mr-1"></i>Print</a>
+                            <a _ngcontent-tmn-c13="" class="btn btn-secondary float-right mt-4 ml-2" onclick="history.back()">Back</a>
                           </div>
                       </div>
                     </div>

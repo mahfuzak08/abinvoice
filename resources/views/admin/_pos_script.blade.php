@@ -11,8 +11,9 @@
                     },
                     success: function(data) {
                         response($.map(data, function(item) {
+                            let s = item.size ? ' - ' + item.size : '';
                             return {
-                                label: item.name + ' - ' + item.category_name + ' - ' + item.size,
+                                label: item.name + ' - ' + item.category_name + s,
                                 value: item,
                                 id: item.id
                             };
@@ -22,10 +23,11 @@
             },
             minLength: 2, // Minimum characters to trigger autocomplete
             select: function(event, ui) {
+                let variant_id = ui.item.value.variant_id ? ui.item.value.variant_id : 0;
                 // Do something when a product is selected
                 let already = false;
                 $("#items .item").each(function(){
-                  if($(this).find('.product_id').val() === ui.item.value.id + '@' + ui.item.value.variant_id){
+                  if($(this).find('.product_id').val() === ui.item.value.id + '@' + variant_id){
                     already = true;
                     $(this).find('.quantity').val(Number($(this).find('.quantity').val()) + 1);
                   }
@@ -38,17 +40,16 @@
                   clonedRow.find('.sl').text(rowlen+1); // row number
                   clonedRow.removeClass('hidden'); // remove hidden class
                   clonedRow.find('input[type="text"]').val(''); // clear text field
-                  clonedRow.find('.product_id').val(ui.item.value.id + '@' + ui.item.value.variant_id); // add product name
+                  clonedRow.find('.product_id').val(ui.item.value.id + '@' + variant_id); // add product name
                   clonedRow.find('.product_name').val(ui.item.value.size ? ui.item.value.name + "(" + ui.item.value.size + ")" : ui.item.value.name); // add product name
                   clonedRow.find('.product_name_txt').text(ui.item.value.size ? ui.item.value.name + "(" + ui.item.value.size + ")" : ui.item.value.name); // add product name
-                  clonedRow.find('.product_details').val(ui.item.value.description); // add product description
-                  clonedRow.find('.product_details_txt').html(ui.item.value.description + "<br>Stock Qty. = " + ui.item.value.qty); // add product description
+                  clonedRow.find('.product_details').val(ui.item.value.description?ui.item.value.description: ''); // add product description
+                  clonedRow.find('.product_details_txt').html("Stock Qty. = " + ui.item.value.qty); // add product description
                   clonedRow.find('.quantity').val(1); // add product quantity
                   if($("#rowsample").hasClass('sales'))
-                    clonedRow.find('.price').val(ui.item.value.price); // add product sales price
+                    clonedRow.find('.price').val(ui.item.value.price?ui.item.value.price:0); // add product sales price
                   else
-                    clonedRow.find('.price').val(ui.item.value.buy_price); // add product price
-                  
+                    clonedRow.find('.price').val(ui.item.value.buy_price?ui.item.value.buy_price:0); // add product price
                   // Append the cloned row to the table body
                   $("#items").append(clonedRow);
                 }
