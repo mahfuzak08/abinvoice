@@ -109,13 +109,14 @@ class CustomerController extends Controller
     }
 
     public function edit_customer($id){
+        $contacts = Contact::all();
         $customer = Customer::findOrFail($id);
         // $vTrnx = AccountTranx::where('ref_id', $id)
         //                         ->where('ref_type', 'customer')
         //                         ->where('note', 'Customer Opening Due Balance')
         //                         ->get();
         
-        return view('admin.customer.edit', compact('customer'));
+        return view('admin.customer.edit', compact('customer', 'contacts'));
     }
     
     public function update_customer(Request $request, $id){
