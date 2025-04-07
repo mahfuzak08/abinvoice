@@ -178,4 +178,5 @@ return [
     'description'=>'description',
     'open'=>'Open',
     'attchment'=>'attchment',
+    'contact'=>'contact',
 ];

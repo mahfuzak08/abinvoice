@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -10,34 +11,32 @@ use App\Models\Contact;
 
 class ContactController extends Controller
 {
-    public function index(){
-        if(! empty(request()->input('search'))){
-            $str = request()->input('search');
-            $datas = Contact::select('contacts.*')
-                            ->where(function ($query) use ($str){
-                                $query->where('name', 'like', '%'.$str.'%')
-                                ->orWhere('mobile', 'like', '%'.$str.'%')
-                                ->orWhere('email', 'like', '%'.$str.'%')
-                            })
-                            ->latest()->paginate(50)->withQueryString();
-        }else{
-            $datas = Contact::select('contacts.*')
-                            ->latest()
-                            ->paginate(50)
-                            ->withQueryString();
+    public function contacts(){
+        if(request()->input('id') == 'new'){
+            return view('admin.contact.addnew');
         }
-        
-        return view('admin.contact.manage', compact('datas', 'ctotal'))->with('i', (request()->input('page', 1) - 1) * 50);
+        elseif(is_numeric(request()->input('delete'))){
+            $contact = Contact::findOrFail(request()->input('delete'));
+            $contact->delete();
+            flash()->addSuccess('Contact delete successfully.');
+            return redirect('contacts');
+        }
+        elseif(is_numeric(request()->input('id'))){
+            $contact = Contact::where('contacts.id', request()->input('id'))->get();
+            return view('admin.contact.edit', compact('contact'));
+        }
+        else{
+            $contacts = Contact::all();
+            return view('admin.contact.manage', compact('contacts'));
+        }
     }
 
-    public function open_contact_form(){
-        return view('admin.contact.addnew');
-    }
-
-    public function set_contact(Request $request){
+    public function contact_save(Request $request){
+        // print_r($request->all());
         $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'mobile' => ['required', 'digits:11', 'unique:contacts,mobile']
+            'name' => ['required', 'string'],
+            'mobile' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string']
         ];
         $validator = Validator::make($request->all(), $rules);
 
@@ -45,283 +44,40 @@ class ContactController extends Controller
             foreach ($validator->messages()->toArray() as $key => $value) { 
                 flash()->addError($value[0]);
             }
-            return redirect('add_new_contact');
+            return redirect('contacts');
         }
-        
-        DB::beginTransaction();
-        try{
-            $data = new Contact();
+
+        $uploadedFiles = [];
+        // Check if files were uploaded
+        if ($request->hasFile('img')) {
             
-            $input = $request->all();
-            if($input['mobile']) $input['mobile'] = b2en($input['mobile']);
-            if($input['balance']) $input['balance'] = b2en($input['balance']);
-            $input['balance'] = empty($input['balance']) || $input['balance'] == null ? 0 : $input['balance'];
-            $input['opening_balance'] = $input['balance'];
-            $data->fill($input)->save();
-    
-            // $contact_id = $data->id;
-            
-            // $due_acc_id = Bankacc::where('type', 'Cash')->pluck('id');
-            // $trnxdata = [
-            //     'account_id' => $due_acc_id[0],
-            //     'user_id' => Auth::id(),
-            //     'tranx_date' => date("Y-m-d"),
-            //     'ref_id' => $contact_id,
-            //     'ref_type' => 'contact',
-            //     'note' => 'Contact Opening Due Balance',
-            //     'amount' => !empty($request->input('balance')) && $request->input('balance')>0 ? ($request->input('balance') * -1) : 0
-            // ];
-            // $tdata = new AccountTranx();
-            // $tdata->fill($trnxdata)->save();
-            
-            flash()->addSuccess('New Data Added Successfully.');
-            // If all queries succeed, commit the transaction
-            DB::commit();
-        }catch (\Exception $e) {
-            // If any query fails, catch the exception and roll back the transaction
-            dd($e);
-            exit();
-            flash()->addError('Data Not Added Successfully.');
-            DB::rollback();
-        }
-        return redirect('contact');
-    }
-
-    public function edit_contact($id){
-        $contact = Contact::findOrFail($id);
-        // $vTrnx = AccountTranx::where('ref_id', $id)
-        //                         ->where('ref_type', 'contact')
-        //                         ->where('note', 'Contact Opening Due Balance')
-        //                         ->get();
-        
-        return view('admin.contact.edit', compact('contact'));
-    }
-    
-    public function update_contact(Request $request, $id){
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'mobile' => ['required', 'digits:13']
-        ];
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            foreach ($validator->messages()->toArray() as $key => $value) { 
-                flash()->addError($value[0]);
-            }
-            return redirect('contact');
-        }
-        
-        DB::beginTransaction();
-        try{
-            $data = Contact::findOrFail($id);
-            
-            $input = $request->all();
-            if($data->opening_balance != $input['opening_balance'])
-                $input['balance'] = $data->balance - ($data->opening_balance - $input['opening_balance']);
-            else
-                $input['balance'] = $data->balance;
-            
-            $data->update($input);
-
-            DB::commit();
-            // If all queries succeed, commit the transaction
-            flash()->addSuccess('Data Update Successfully.');
-        }catch (\Exception $e) {
-            // If any query fails, catch the exception and roll back the transaction
-            flash()->addError('Data Not Updated Successfully.');
-            DB::rollback();
-        }
-        return redirect('contact');
-    }
-
-    public function delete_contact($id){
-        $data = Contact::findOrFail($id);
-        $data->is_delete = 1;
-        $data->save();
-        flash()->addSuccess('Data Delete Successfully.');
-        return redirect('contact');
-    }
-
-    public function see_contact($id){
-        $banks = Bankacc::get();
-        $accounts_payable_bid = 0;
-        $cash_bid = 0;
-        foreach($banks as $r){
-            if($r->type == 'Due' && $r->name == 'Due')
-                $accounts_payable_bid = $r->id;
-            if($r->type == 'Cash' && $r->name == 'Cash')
-                $cash_bid = $r->id;
-        }
-        $contact = Contact::where('id', $id)
-                            ->select('contacts.*')
-                            ->addSelect(DB::raw('(COALESCE((SELECT SUM(amount) FROM account_tranxes WHERE account_id = "'.$cash_bid.'" AND ref_id = contacts.id AND ref_type = "contact"), 0) - COALESCE((SELECT SUM(amount) FROM account_tranxes WHERE account_id = "'.$accounts_payable_bid.'" AND ref_id = contacts.id AND ref_type = "contact"), 0)) as due'))
-                            ->get();
-        $cs = Sales::where('contact_id', $id)
-                    ->where('order_type', 'sales')
-                    ->get();
-        $quantity = 0;
-        for($i=0; $i<count($cs); $i++){
-            $q = json_decode($cs[$i]->products);
-            for($j=0; $j<count($q); $j++)
-                $quantity += $q[$j]->quantity;
-        }
-        // dd($quantity);
-
-        if(! empty(request()->input('search'))){
-            $str = request()->input('search');
-            $datas = AccountTranx::join('bankaccs', 'account_tranxes.account_id', '=', 'bankaccs.id')
-                            ->where(function ($query) use ($str){
-                                $query->where('tranx_date', 'like', '%'.$str.'%')
-                                ->orWhere('amount', 'like', '%'.$str.'%')
-                                ->orWhere('bankaccs.name', 'like', '%'.$str.'%')
-                                ->orWhere('note', 'like', '%'.$str.'%');
-                            })
-                            ->where('ref_id', $id)
-                            ->where('ref_type', 'contact')
-                            ->select('account_tranxes.*', 'bankaccs.name as bank_name')
-                            ->latest()
-                            ->paginate(10)->withQueryString();
-        }else{
-            $datas = AccountTranx::join('bankaccs', 'account_tranxes.account_id', '=', 'bankaccs.id')
-                    ->where('ref_id', $id)
-                    ->where('ref_type', 'contact')
-                    ->select('account_tranxes.*', 'bankaccs.name as bank_name')
-                    ->latest()
-                    ->paginate(10)->withQueryString();
-        }
-        $balancesBefore = array();
-        $aidcash = 0;
-        $aiddue = 0;
-        $c = 0;
-        $d = 0;
-        foreach($banks as $bank){
-            if($bank->type == 'Cash') 
-                $aidcash = $bank->id;
-            elseif($bank->type == 'Due' && $bank->name == 'Due') 
-                $aiddue = $bank->id;
-        }
-        if(isset($_GET['page']) && $_GET['page']>1){
-            $balancesBefore = AccountTranx::where('ref_id', $id)
-                            ->where('ref_type', 'contact')
-                            ->where('id', '<', $datas->first()->id)
-                            ->groupBy('account_id')
-                            ->select('account_id', DB::raw('sum(amount) as total_amount')) // Select account_id and sum amount
-                            ->get()->toArray();
-            foreach($balancesBefore as $bf){
-                if($bf['account_id'] == $aidcash) $c+=$bf["total_amount"];
-                elseif($bf['account_id'] == $aiddue) $d+=$bf["total_amount"];
+            foreach ($request->file('img') as $file) {
+                // Generate a unique filename
+                $filename = time() . '_' . $file->getClientOriginalName();
+                
+                // Store the file in the 'public/uploads' directory
+                $uploadedFiles[] = $file->storeAs('public/uploads', $filename);
+                
             }
         }
-        foreach($datas as $row){
-            if($aidcash == $row->account_id){
-                $c+=$row->amount;
-            }
-            elseif($aiddue == $row->account_id){
-                $d+=$row->amount;
-            }
-        }
-        $table = ["balancesBefore"=>$balancesBefore, "datas"=>$datas, "d"=>$d, "c"=>$c, "aidcash"=>$aidcash, "aiddue"=>$aiddue];
-        // dd($table);
-        return view('admin.contact.details', compact('contact', 'quantity', 'table'))->with('i', (request()->input('page', 1) - 1) * 10);
-    }
 
-    public function add_amount(Request $request){
         $input = $request->all();
-        if($input['amount']) $input['amount'] = b2en($input['amount']);
-        $banks = Bankacc::get();
-        $aid = 0;
-        if($request->input('tranx_type') == 'debit'){
-            foreach($banks as $r){
-                if($r->type == 'Cash')
-                    $aid = $r->id;
-            }
-        }elseif($request->input('tranx_type') == 'credit'){
-            foreach($banks as $r){
-                if($r->type == 'Due' && $r->name == 'Due')
-                    $aid = $r->id;
-            }
+
+        if($request->input('id')){
+            $data = Contact::findOrFail($request->input('id'));
+            $msg = 'Contact Update Successfully.';
         }
-        $input['account_id'] = $aid;
-        $rules = [
-            'tranx_date' => ['required', 'date'],
-            'amount' => ['required']
-        ];
-        // $id = $request->input('account_id');
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            foreach ($validator->messages()->toArray() as $key => $value) { 
-                flash()->addError($value[0]);
+        else{
+            if(count($uploadedFiles) > 0){
+                $input["img"] = $uploadedFiles[0];
             }
-            return redirect($request->input('redirect_url'));
-        }
-
-        DB::beginTransaction();
-        try{
-            $contact = Contact::findOrFail($request->input('ref_id'));
-            // if($contact){
-            //     $contact->balance = $contact->balance - $request->input('amount');
-            //     $contact->save();
-            // }
-    
-            if(!empty($request->input('id'))){
-                $data = AccountTranx::where('id', $request->input('id'))
-                                    ->where('ref_id', $request->input('ref_id'))
-                                    ->where('ref_type', $request->input('ref_type'))
-                                    ->get();
-                
-                $input['account_id'] = $request->input('account_id');
-                $input['user_id'] = Auth::id();
-                $input['note'] = $input['note'] . ' (Edited)';
-                $data[0]->fill($input)->save();
-            }else{
-                $data = new AccountTranx();
-                $input['account_id'] = $aid;
-                $input['user_id'] = Auth::id();
-                
-                $data->fill($input)->save();
-            }
-            
-
-            if($request->input('sms_flag') == 'yes'){
-                $sms = new SendSms();
-                $sms->toSms($contact->mobile, config('app.name'). ' receive your payment BDT '. $input['amount'] .'. Thank you');
-            }
-
-            if(!empty($request->input('id')))
-                flash()->addSuccess('Data Update Successfully.');
-            else
-                flash()->addSuccess('New Data Added Successfully.');
-            // If all queries succeed, commit the transaction
-            DB::commit();
-        }catch (\Exception $e) {
-            dd($e);
-            // If any query fails, catch the exception and roll back the transaction
-            flash()->addError('Data Not Added or Update Successfully.');
-            DB::rollback();
-        }
-        return redirect($request->input('redirect_url'));
-    }
-
-    public function contact_tnx_edit($id){
-        $order = AccountTranx::findOrFail($id);
-        $account = Bankacc::all();
-        return view('admin.contact.register_edit', compact('order', 'account'));
-    }
-    
-    public function contact_tnx_delete($id){
-        try{
-            DB::beginTransaction();
-            AccountTranx::where('id', $id)->delete();
-            flash()->addSuccess('Contact Transection Deleted Successfully.');
-            DB::commit();
-        }catch (\Exception $e) {
-            dd($e);
-            flash()->addError('Contact Transection Unable To Delete');
-            DB::rollback();
-            return redirect('contact');
+            $data = new Contact();
+            $msg = 'Contact Save Successfully.';
         }
         
-        return redirect("contact");
+        $data->fill($input)->save();
+        flash()->addSuccess($msg);
+        return redirect('contacts');
     }
+    
 }

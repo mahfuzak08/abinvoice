@@ -11,10 +11,10 @@
         <div class="main-panel">
             <div class="content-wrapper">
                 <div class="page-header">
-                  <h3 class="page-title"> {{ __('admin.customer') }} </h3>
+                  <h3 class="page-title"> {{ __('admin.contact') }} </h3>
                   <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                      <li class="breadcrumb-item"><a href="{{route('customer')}}" class="btn btn-sm btn-rounded btn-secondary">{{__('admin.back')}}</a></li>
+                      <li class="breadcrumb-item"><a href="{{route('contacts')}}" class="btn btn-sm btn-rounded btn-secondary">{{__('admin.back')}}</a></li>
                     </ol>
                   </nav>
                 </div>
@@ -22,36 +22,34 @@
                     <div class="col-12 grid-margin stretch-card">
                         <div class="card">
                             <div class="card-body">
-                                <form class="forms-sample" method="POST" action="{{ route('update-customer', $customer->id) }}">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label for="exampleInputName1">{{ __('admin.name') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName1" name="name" value="{{$customer->name}}" placeholder="{{ __('admin.name') }}">
+                                <form class="forms-sample" method="POST" action="{{ route('save-contact') }}">
+                                  @csrf
+                                  <input type="hidden" name="id" value="{{$contact[0]->id}}">
+                                  <div class="form-group">
+                                      <label for="exampleInputName1">{{ __('admin.name') }} <span class="text-danger">*</span></label>
+                                      <input type="text" class="form-control" id="exampleInputName1" name="name" value="{{$contact[0]->name}}" placeholder="{{ __('admin.name') }}">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="exampleInputName6">{{ __('admin.mobile') }}</label>
+                                      <input type="text" class="form-control" id="exampleInputName6" name="mobile" value="{{$contact[0]->mobile}}" placeholder="{{ __('admin.mobile') }}">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="exampleInputName4">{{ __('admin.email') }}</label>
+                                      <input type="text" class="form-control" id="exampleInputName4" name="email" value="{{$contact[0]->email}}" placeholder="{{ __('admin.email') }}">
+                                  </div>
+                                  @if($contact[0]->img)
+                                    <div class="row">
+                                      @php
+                                      $img = str_replace("public", "storage", $contact[0]->img);
+                                      @endphp
+                                      <div class="col-3">
+                                        <a href="{{ $img }}" target="_blank"><img src="{{ $img }}" ></a>
+                                      </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="exampleInputName2">{{ __('admin.mobile') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName2" name="mobile" value="{{$customer->mobile}}" placeholder="{{ __('admin.mobile') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="exampleInputName6">{{ __('admin.email') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName6" name="email" value="{{$customer->email}}" placeholder="{{ __('admin.email') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="exampleInputName7">{{ __('admin.address') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName7" name="address" value="{{$customer->address}}" placeholder="{{ __('admin.address') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="exampleInputName4">{{ __('admin.opening_balance') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName4" name="opening_balance" value="{{$customer->opening_balance}}" placeholder="{{ __('admin.opening_balance') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="exampleInputName11">{{ __('admin.contact.person') }} {{ __('admin.name') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName11" name="contact_id" value="{{$customer->contact_id}}" placeholder="{{ __('admin.contact.person') }} {{ __('admin.name') }}">
-                                    </div>
-                              
-                                    <button type="submit" class="btn btn-rounded btn-primary btn-sm me-2">{{ __('admin.update') }}</button><br><br>
-                                    <a onclick="history.back()" class="btn btn-sm btn-rounded btn-secondary">{{ __('admin.cancel') }}</a>
-                                </form>
+                                  @endif
+                                  <button type="submit" class="btn btn-rounded btn-primary btn-sm me-2">{{ __('admin.update') }}</button><br><br>
+                                  <a onclick="history.back()" class="btn btn-sm btn-rounded btn-secondary">{{ __('admin.cancel') }}</a>
+                              </form>
                             </div>
                         </div>
                     </div>

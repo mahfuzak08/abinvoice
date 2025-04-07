@@ -12,7 +12,7 @@ class Contact extends Model
     use HasFactory;
     use LogsActivity;
 
-    protected $fillable = ['name', 'mobile', 'email'];
+    protected $fillable = ['name', 'mobile', 'email', 'img'];
 
     public function getActivitylogOptions(): LogOptions
     {

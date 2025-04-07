@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('mobile')->unique();
             $table->string('email')->nullable();
+            $table->string('img')->nullable();
             $table->timestamps();
         });
     }

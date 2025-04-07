@@ -10,6 +10,7 @@ use App\Notifications\SendSms;
 use App\Models\AccountTranx;
 use App\Models\Bankacc;
 use App\Models\Customer;
+use App\Models\Contact;
 use App\Models\Sales;
 
 class CustomerController extends Controller
@@ -50,7 +51,8 @@ class CustomerController extends Controller
     }
 
     public function open_customer_form(){
-        return view('admin.customer.addnew');
+        $contacts = Contact::all();
+        return view('admin.customer.addnew', compact('contacts'));
     }
 
     public function set_customer(Request $request){
@@ -119,7 +121,7 @@ class CustomerController extends Controller
     public function update_customer(Request $request, $id){
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'mobile' => ['required', 'digits:13']
+            'mobile' => ['required', 'digits:11']
         ];
         $validator = Validator::make($request->all(), $rules);
 

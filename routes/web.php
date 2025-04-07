@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\CustomerController;
@@ -37,6 +38,9 @@ Route::middleware([
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::get('/tickets', [HomeController::class, 'tickets'])->name('tickets');
     Route::post('/ticket', [HomeController::class, 'ticket_save'])->name('save-ticket');
+    
+    Route::get('/contacts', [ContactController::class, 'contacts'])->name('contacts');
+    Route::post('/contact', [ContactController::class, 'contact_save'])->name('save-contact');
     
     Route::get('/category', [InventoryController::class, 'category'])->name('category');
     Route::get('/add_category', [InventoryController::class, 'add_category'])->name('add-category');

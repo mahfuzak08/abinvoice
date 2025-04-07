@@ -46,7 +46,12 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="exampleInputName11">{{ __('admin.contact.person') }} {{ __('admin.name') }}</label>
-                                        <input type="text" class="form-control" id="exampleInputName11" name="contact_id" placeholder="{{ __('admin.contact.person') }} {{ __('admin.name') }}">
+                                        <select class="form-select" id="exampleInputName11" name="contact_id">
+                                          <option>Select a customer</option>
+                                          @foreach($contacts as $row)
+                                          <option value="{{$row->id}}">{{$row->name}}</option>
+                                          @endforeach
+                                        </select>
                                     </div>
                                     <button type="submit" class="btn btn-rounded btn-primary btn-sm me-2">{{ __('admin.save_now') }}</button><br><br>
                                     <a onclick="history.back()" class="btn btn-sm btn-rounded btn-secondary">{{ __('admin.cancel') }}</a>

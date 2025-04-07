@@ -27,6 +27,12 @@
         <i class="mdi mdi-cart-off menu-icon"></i>
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('contacts') }}">
+        <span class="menu-title">{{ __('admin.contact') }}</span>
+        <i class="mdi mdi-cart-off menu-icon"></i>
+      </a>
+    </li>
     @endif
     @if(hasModuleAccess("Inventory"))
     <li class="nav-item">
