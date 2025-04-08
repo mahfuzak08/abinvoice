@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\SendTicket;
 use App\Models\Customer;
 use App\Models\Ticket;
+use App\Models\User;
 
 class HomeController extends Controller
 {
