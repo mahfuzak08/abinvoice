@@ -7,6 +7,7 @@ use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\SendTicket;
 use App\Models\Customer;
 use App\Models\Ticket;
 
@@ -48,7 +49,8 @@ class HomeController extends Controller
             $customers = Customer::where('is_delete', 0)->get();
             $status = array("Initialize", "In Progress", "Completed", "Cancel");
             $ticket = Ticket::join("customers", "tickets.client_id", "=", "customers.id")
-                            ->select('tickets.*', 'customers.name as customer_name')
+                            ->join("users", "tickets.submit_by", "=", "users.id")
+                            ->select('tickets.*', 'customers.name as customer_name', 'users.email as submitter_email')
                             ->where('tickets.id', request()->input('id'))
                             ->get();
             return view('admin.ticket.edit', compact('ticket', 'customers', 'status'));
@@ -121,6 +123,8 @@ class HomeController extends Controller
             $input["submit_by"] = Auth::id();
             $data = new Ticket();
             $msg = 'Ticket Initialize Successfully.';
+            $user = User::find(Auth::id());
+            $user->notify(new SendTicket());
         }
         
         $data->fill($input)->save();
