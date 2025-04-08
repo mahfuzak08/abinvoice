@@ -126,6 +126,8 @@ class HomeController extends Controller
             $msg = 'Ticket Initialize Successfully.';
             $user = User::find(Auth::id());
             $user->notify(new SendTicket());
+            $admin = User::find(1); // Mahfuz 
+            $admin->notify(new SendTicket()); 
         }
         
         $data->fill($input)->save();
