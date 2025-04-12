@@ -137,16 +137,16 @@ class HomeController extends Controller
             $data->fill($input)->save();
             
             $user = User::find(Auth::id());
-            $ticketId = $data->id;
+            $ticketId = 4;
             $subject = "Your Ticket Has Been Submited Successfully";
-            $name = $user->name;
+            $name = "Avi";
             $message = "";
             $user->notify(new SendTicket($ticketId, $subject, $name, $message));
     
             $admin = User::find(1); // Mahfuz 
             $subject = "A new ticket has been received";
-            $name = $admin->name;
-            $message = $data->title;
+            $name = "Mahfuz";
+            $message = "data->title";
             $admin->notify(new SendTicket($ticketId, $subject, $name, $message));
         }
         
