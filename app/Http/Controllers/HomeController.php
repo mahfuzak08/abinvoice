@@ -16,6 +16,8 @@ class HomeController extends Controller
 {
     public function dashboard(){
         activity()->log('Logged in');
+        if(Auth::user()->role->name == 'Officer')
+            return redirect('tickets');
         // accounts_payable
         // $banks = Bankacc::get();
         // $accounts_payable_bid = 0;

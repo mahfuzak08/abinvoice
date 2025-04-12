@@ -14,22 +14,18 @@
         <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
       </a>
     </li>
+    @if(Auth::user()->role->name != "Officer")
     <li class="nav-item">
       <a class="nav-link" href="{{ route('dashboard') }}">
         <span class="menu-title">{{ __('admin.dashboard') }}</span>
         <i class="mdi mdi-home menu-icon"></i>
       </a>
     </li>
+    @endif
     @if(hasModuleAccess("Tickets"))
     <li class="nav-item">
       <a class="nav-link" href="{{ route('tickets') }}">
         <span class="menu-title">{{ __('admin.ticket') }}</span>
-        <i class="mdi mdi-cart-off menu-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ route('contacts') }}">
-        <span class="menu-title">{{ __('admin.contact') }}</span>
         <i class="mdi mdi-cart-off menu-icon"></i>
       </a>
     </li>
@@ -155,6 +151,7 @@
           @if(Auth::user()->role->name == 'Super Admin')
           <li class="nav-item"> <a class="nav-link" href="{{route('user-manage')}}">{{__('admin.user_management')}}</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('role-manage')}}">{{__('admin.role_management')}}</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{route('contacts')}}">{{__('admin.contact')}}</a></li>
           @endif
           <li class="nav-item"> <a class="nav-link" href="{{route('sms')}}">{{__('admin.sms_manage')}}</a></li>
           @if(hasModuleAccess("Fiscal_Year"))
