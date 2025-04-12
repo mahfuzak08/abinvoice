@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -54,7 +56,7 @@ class SendTicket extends Notification
         return [
             'ticket_id' => $this->ticketId,
             'subject' => $this->subject,
-            'name' => $this->name,
+            'subject' => $this->subject,
         ];
     }
 }
