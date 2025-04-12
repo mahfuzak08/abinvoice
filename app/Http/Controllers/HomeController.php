@@ -118,6 +118,10 @@ class HomeController extends Controller
             $input["status"] = $request->input('status');
             $data = Ticket::findOrFail($request->input('id'));
             $msg = 'Ticket Update Successfully.';
+            $data->fill($input)->save();
+            
+            $user = User::find(Auth::id());
+            $user->notify(new SendTicket($data->id, "Your Ticket Has Been Updated Successfully", $user->name, ""));
         }
         else{
             if(count($uploadedFiles) > 0){
@@ -126,13 +130,15 @@ class HomeController extends Controller
             $input["submit_by"] = Auth::id();
             $data = new Ticket();
             $msg = 'Ticket Initialize Successfully.';
+            $data->fill($input)->save();
+            
             $user = User::find(Auth::id());
-            $user->notify(new SendTicket());
+            $user->notify(new SendTicket($data->id, "Your Ticket Has Been Submited Successfully", $user->name, ""));
+    
             $admin = User::find(1); // Mahfuz 
-            $admin->notify(new SendTicket()); 
+            $admin->notify(new SendTicket($data->id, "A new ticket has been received", $admin->name, $data->title));
         }
         
-        $data->fill($input)->save();
         flash()->addSuccess($msg);
         return redirect('tickets');
     }

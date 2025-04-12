@@ -1,5 +1,3 @@
-<?php
-
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -11,18 +9,24 @@ class SendTicket extends Notification
 {
     use Queueable;
 
+    protected $ticketId;
+    protected $subject;
+    protected $name;
+    protected $message;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($ticketId, $subject, $name, $message = null)
     {
-        //
+        $this->ticketId = $ticketId;
+        $this->subject = $subject;
+        $this->name = $name;
+        $this->message = $message;
     }
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
@@ -35,22 +39,22 @@ class SendTicket extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Your Ticket Has Been Submited Successfully')
-                    ->greeting('Hello!')
-                    ->line('We have received your ticket just now. When done you will be received completed notification,')
-                    ->action('View Ticket', url('/tickets?id=1'))
-                    ->line('Thank you for using our system!');
+            ->subject($this->subject)
+            ->greeting($this->name . '!')
+            ->line($this->message ?? 'We have received your ticket just now. When done, you will receive a completion notification.')
+            ->action('View Ticket', url('/tickets?id=' . $this->ticketId))
+            ->line('Thank you for using our system!');
     }
 
     /**
      * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
      */
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'ticket_id' => $this->ticketId,
+            'subject' => $this->subject,
+            'name' => $this->name,
         ];
     }
 }
