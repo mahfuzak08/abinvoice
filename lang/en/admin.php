@@ -179,4 +179,5 @@ return [
     'open'=>'Open',
     'attchment'=>'Attchment',
     'contact'=>'Contact',
+    'password'=>'Password',
 ];

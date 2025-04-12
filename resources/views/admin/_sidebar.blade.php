@@ -153,8 +153,8 @@
           <li class="nav-item"> <a class="nav-link" href="{{route('role-manage')}}">{{__('admin.role_management')}}</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('contacts')}}">{{__('admin.contact')}}</a></li>
           @endif
-          <li class="nav-item"> <a class="nav-link" href="{{route('sms')}}">{{__('admin.sms_manage')}}</a></li>
           @if(hasModuleAccess("Fiscal_Year"))
+          <li class="nav-item"> <a class="nav-link" href="{{route('sms')}}">{{__('admin.sms_manage')}}</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{route('fy')}}">{{__('admin.fy')}}</a></li>
           @endif
         </ul>
