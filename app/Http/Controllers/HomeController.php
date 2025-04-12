@@ -121,7 +121,11 @@ class HomeController extends Controller
             $data->fill($input)->save();
             
             $user = User::find(Auth::id());
-            $user->notify(new SendTicket($data->id, "Your Ticket Has Been Updated Successfully", $user->name, ""));
+            $ticketId = $data->id;
+            $subject = "Your Ticket Has Been Updated Successfully";
+            $name = $user->name;
+            $message = "";
+            $user->notify(new SendTicket($ticketId, $subject, $name, $message));
         }
         else{
             if(count($uploadedFiles) > 0){
@@ -133,10 +137,17 @@ class HomeController extends Controller
             $data->fill($input)->save();
             
             $user = User::find(Auth::id());
-            $user->notify(new SendTicket($data->id, "Your Ticket Has Been Submited Successfully", $user->name, ""));
+            $ticketId = $data->id;
+            $subject = "Your Ticket Has Been Submited Successfully";
+            $name = $user->name;
+            $message = "";
+            $user->notify(new SendTicket($ticketId, $subject, $name, $message));
     
             $admin = User::find(1); // Mahfuz 
-            $admin->notify(new SendTicket($data->id, "A new ticket has been received", $admin->name, $data->title));
+            $subject = "A new ticket has been received";
+            $name = $admin->name;
+            $message = $data->title;
+            $admin->notify(new SendTicket($ticketId, $subject, $name, $message));
         }
         
         flash()->addSuccess($msg);
