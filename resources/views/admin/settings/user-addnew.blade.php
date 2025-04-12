@@ -22,7 +22,7 @@
                     <div class="col-12 grid-margin stretch-card">
                         <div class="card">
                             <div class="card-body">
-                                <form class="forms-sample" method="POST" action="{{ route('register') }}">
+                                <form class="forms-sample" method="POST" action="{{ route('save-user') }}">
                                     @csrf
                                     <div class="form-group">
                                         <label for="exampleInputName1">{{ __('admin.name') }}</label>
@@ -31,6 +31,10 @@
                                     <div class="form-group">
                                         <label for="examplepassword">{{ __('admin.password') }}</label>
                                         <input type="password" class="form-control" id="examplepassword" name="password" placeholder="{{ __('admin.password') }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="examplepassword2">{{ __('admin.password') }} confirmed</label>
+                                        <input type="password" class="form-control" id="examplepassword2" name="password_confirmation" placeholder="{{ __('admin.password') }} confirmed">
                                     </div>
                                     <div class="form-group">
                                         <label for="exampleInputName2">{{ __('admin.mobile') }}</label>
@@ -45,7 +49,7 @@
                                         <select name="role" style="width: 100%;">
                                           <option>Select Role</option>
                                           @foreach($role as $r)
-                                            <option value={{$r->id}}>{{$r->name}}</option>
+                                            <option value="{{$r->id}}">{{$r->name}}</option>
                                           @endforeach
                                         </select>
                                     </div>

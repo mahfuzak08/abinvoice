@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
@@ -68,6 +70,46 @@ class SettingsController extends Controller
     public function open_user_form(){
         $role = Role::get(['id', 'name']);
         return view('admin.settings.user-addnew', compact('role'));
+    }
+
+    public function set_user(Request $request)
+    {
+        // dd($request->all());
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            foreach ($validator->messages()->toArray() as $key => $value) { 
+                flash()->addError($value[0]);
+            }
+            return redirect('add_new_user');
+        }
+        try{
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => empty($request->mobile) ? null : $request->mobile,
+                'address' => empty($request->address) ? null : $request->address,
+                'role_id' => empty($request->role) ? 4 : $request->role,
+                'password' => Hash::make($request->password),
+            ]);
+        }catch (\Exception $e) {
+            flash()->addError('User created error');
+            // dd($e);
+        }
+        flash()->addSuccess('User created successfully.');
+        return redirect('user_manage');
+    }
+
+    public function delete_user($id){
+        User::where('id', $id)->delete();
+        flash()->addSuccess('User delete successfully.');
+        return redirect('user_manage');
     }
     
     public function update_user(Request $request, $id){
