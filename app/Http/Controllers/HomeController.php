@@ -120,11 +120,11 @@ class HomeController extends Controller
             $msg = 'Ticket Update Successfully.';
             $data->fill($input)->save();
             
-            $user = User::find(Auth::id());
+            $user = User::find($data->submit_by);
             $ticketId = $data->id;
             $subject = "Your Ticket Has Been Updated Successfully";
             $name = $user->name;
-            $message = "";
+            $message = $data->title . "(". $data->status .")";
             $user->notify(new SendTicket($ticketId, $subject, $name, $message));
         }
         else{

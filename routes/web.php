@@ -29,6 +29,12 @@ Route::get('/', function () {
     // redirect to login page, when just enter the domain name
     return redirect('login');
 });
+Route::get('/privacy-policy', function () {
+    return view('privacy-policy');
+});
+Route::get('/terms-and-conditions', function () {
+    return view('terms-and-conditions');
+});
 
 Route::middleware([
     'auth:sanctum',
