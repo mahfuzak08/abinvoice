@@ -43,6 +43,15 @@
                     {{ __('Log in') }}
                 </x-button>
             </div>
-        </form>
+        </form>        
+        <div class="mt-6 text-center text-sm text-gray-600">
+            <a href="{{ url('/privacy-policy') }}" class="underline hover:text-gray-900">
+                {{ __('Privacy Policy') }}
+            </a>
+            <span class="mx-2">|</span>
+            <a href="{{ url('/terms-and-conditions') }}" class="underline hover:text-gray-900">
+                {{ __('Terms & Conditions') }}
+            </a>
+        </div>
     </x-authentication-card>
 </x-guest-layout>
